@@ -17,8 +17,10 @@ import (
 
 // New returns a proxy middleware ready to start dumping all the requests and responses
 // it processes.
+//
 // The dot files will be stored in the path defined by the putput argument, using the name argument
 // as a prefix.
+//
 // Requests named "xxx" will be stored in the output filder as xxx_in_{timestamp}.dot
 // Responses named "xxx" will be stored in the output filder as xxx_out_{timestamp}.dot
 func New(logger logging.Logger, output, name string) proxy.Middleware {
@@ -40,16 +42,19 @@ func New(logger logging.Logger, output, name string) proxy.Middleware {
 
 			out := new(bytes.Buffer)
 			memviz.Map(out, resp)
-			logger.Debug("rmemviz: response captured. returning")
+			logger.Debug("memviz: response captured. returning")
+
 			go func(in, out *bytes.Buffer) {
 				now := time.Now().UnixNano()
-				if err := ioutil.WriteFile(path.Join(output, fmt.Sprintf("%s_in_%d.dot", name, now)), in.Bytes(), 0666); err != nil {
+				preffix := path.Join(output, name)
+				if err := ioutil.WriteFile(fmt.Sprintf("%s_in_%d.dot", preffix, now), in.Bytes(), 0666); err != nil {
 					logger.Error("memviz: witting the in:", err.Error())
 				}
-				if err := ioutil.WriteFile(path.Join(output, fmt.Sprintf("%s_out_%d.dot", name, now)), out.Bytes(), 0666); err != nil {
+				if err := ioutil.WriteFile(fmt.Sprintf("%s_out_%d.dot", preffix, now), out.Bytes(), 0666); err != nil {
 					logger.Error("memviz: witting the out:", err.Error())
 				}
 			}(in, out)
+
 			return resp, err
 		}
 	}
