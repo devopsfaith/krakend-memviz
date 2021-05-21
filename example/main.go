@@ -8,13 +8,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/devopsfaith/krakend/config"
-	"github.com/devopsfaith/krakend/logging"
-	"github.com/devopsfaith/krakend/proxy"
-	krakendgin "github.com/devopsfaith/krakend/router/gin"
 	"github.com/gin-gonic/gin"
+	"github.com/luraproject/lura/config"
+	"github.com/luraproject/lura/logging"
+	"github.com/luraproject/lura/proxy"
+	krakendgin "github.com/luraproject/lura/router/gin"
+	"github.com/luraproject/lura/transport/http/client"
 
-	"github.com/devopsfaith/krakend-memviz"
+	memviz "github.com/devopsfaith/krakend-memviz"
 )
 
 func main() {
@@ -41,7 +42,7 @@ func main() {
 	}
 
 	// memviz backend proxy wrapper
-	bf := memviz.BackendFactory(logger, proxy.CustomHTTPProxyFactory(proxy.NewHTTPClient), *output)
+	bf := memviz.BackendFactory(logger, proxy.CustomHTTPProxyFactory(client.NewHTTPClient), *output)
 	// memviz proxy wrapper
 	pf := memviz.ProxyFactory(logger, proxy.NewDefaultFactory(bf, logger), *output)
 
